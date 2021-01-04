@@ -28,9 +28,9 @@ class CategoryDataset(Dataset):
         neg_samples: Whether generate negative sampled outfits
     """
     def __init__(self,
-                 root_dir="../data/images/",
+                 root_dir="/content/fashion_compatibility_mcn/data/images/",
                  data_file='train_no_dup_with_category_3more_name.json',
-                 data_dir="../data",
+                 data_dir="/content/fashion_compatibility_mcn/data",
                  transform=None,
                  use_mean_img=True,
                  neg_samples=True):
@@ -39,7 +39,7 @@ class CategoryDataset(Dataset):
         self.transform = transform
         self.use_mean_img = use_mean_img
         self.data = json.load(open(os.path.join(data_dir, data_file)))
-        self.data = [(k, v) for k, v in self.data.items()]
+        self.data = [tuple(l) for l in self.data]
         self.neg_samples = neg_samples # if True, will randomly generate negative outfit samples
     
         self.vocabulary, self.word_to_idx = [], {}
@@ -64,7 +64,7 @@ class CategoryDataset(Dataset):
         imgs = []
         labels = []
         names = []
-        for part in ['upper', 'bottom', 'shoe', 'bag', 'accessory']:
+        for part in ['Bottoms', 'Tops', 'Shoes', 'Accessories']:
             if part in to_change: # random choose a image from dataset with same category
                 choice = self.data[index]
                 while (choice[0] == set_id) or (part not in choice[1].keys()):
@@ -113,7 +113,7 @@ class CategoryDataset(Dataset):
         question_id = "{}_{}".format(set_id, parts[question_part]['index'])
         imgs = []
         labels = []
-        for part in ['upper', 'bottom', 'shoe', 'bag', 'accessory']:
+        for part in ['Bottoms', 'Tops', 'Shoes', 'Accessories']:
             if part in parts.keys():
                 img_path = os.path.join(self.root_dir, str(set_id), str(parts[part]['index'])+'.jpg')
                 img = Image.open(img_path).convert('RGB')
@@ -201,16 +201,16 @@ class TripletDataset(Dataset):
              pair, condition and target.
      """
     def __init__(self,
-             root_dir="/export/home/wangx/datasets/polyvore-dataset/images/",
+             root_dir="/content/fashion_compatibility_mcn/data/images/",
              data_file='train_no_dup_with_category_3more_name.json',
-             data_dir="../data",
+             data_dir="/content/fashion_compatibility_mcn/data",
              transform=None,
              is_train=True):
         self.root_dir = root_dir
         self.data_dir = data_dir
         self.transform = transform
         self.data = json.load(open(os.path.join(data_dir, data_file)))
-        self.data = [(k, v) for k, v in self.data.items()]
+        self.data = [tuple(l) for l in self.data]
         self.is_train = is_train
         self.conditions = {
             'upper_bottom': 0,
